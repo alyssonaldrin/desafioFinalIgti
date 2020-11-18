@@ -9,7 +9,7 @@ import controller from "./services/TransactionService.js";
 export default function App() {
     const [yearMonth, setYearMonth] = useState('2019-01');
     const [allTransactions, setAllTransactions] = useState([]);
-    //const [filteredTransactions, setFilteredTransactions] = useState([]);
+    const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [filter, setFilter] = useState("");
     const [selectedTransaction, setSelectedTransaction] = useState({});
     const [isModalOn, setIsModalOn] = useState(false);
@@ -20,15 +20,13 @@ export default function App() {
         count: 0
       });
 
-    // useEffect(() => {
-    //     const filterLowerCase = filter.toLowerCase();
-
-    //     const newFilteredTransactions = allTransactions.filter((transaction) => {
-    //         console.log(transaction.description)
-    //         return transaction.description.toLowerCase().includes(filterLowerCase);
-    //     })
-    //     setFilteredTransactions(newFilteredTransactions);
-    // }, [filter, allTransactions])
+    useEffect(() => {
+        const filterLowerCase = filter.toLowerCase();
+        const newFilteredTransactions = allTransactions.filter((transaction) => {
+            return transaction.description.toLowerCase().includes(filterLowerCase);
+        })
+        setFilteredTransactions(newFilteredTransactions);
+    }, [filter, allTransactions])
 
     useEffect(() => {
         const getAllTransactions = async () => {
@@ -47,7 +45,7 @@ export default function App() {
     const handleDelete = async (transaction) => {
         const deleted = await controller.remove(transaction._id);
         if (deleted) {
-            const newTransactions = allTransactions.map(
+            const newTransactions = allTransactions.filter(
                 (item) => item._id !== transaction._id
             );
             setAllTransactions(newTransactions);
@@ -55,6 +53,19 @@ export default function App() {
     }
 
     const handlePersist = async (transaction = {}) => {
+        if (transaction === {}) {
+            transaction = {
+                category: "",
+                day: 1,
+                description: "",
+                month: 1,
+                type: "-",
+                value: 0,
+                year: "",
+                yearMonth: "",
+                yearMonthDay: ""
+            }
+        }
         setSelectedTransaction(transaction);
         setIsModalOn(true);
     }
@@ -134,7 +145,7 @@ export default function App() {
             </div>
             <Summary summary={summary} />
             <Search filter={filter} onChangeFilter={handleChangeFilter} onPersist={handlePersist} />
-            <Entries onDelete={handleDelete} onPersist={handlePersist} allTransactions={allTransactions} />
+            <Entries onDelete={handleDelete} onPersist={handlePersist} filteredTransactions={filteredTransactions} />
             {isModalOn && <ModalTransaction onSave={handlePersistData} onClose={handleClose} selectedTransaction={selectedTransaction} />}
         </div>
     )

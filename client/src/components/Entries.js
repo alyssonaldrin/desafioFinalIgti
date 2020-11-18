@@ -1,7 +1,7 @@
 import React from 'react'
 import Entry from './Entry'
 
-export default function Entries({ allTransactions, onDelete, onPersist }) {
+export default function Entries({ filteredTransactions, onDelete, onPersist }) {
     
     const handleDelete = (transaction) => {
         onDelete(transaction);
@@ -13,8 +13,8 @@ export default function Entries({ allTransactions, onDelete, onPersist }) {
 
     return (
         <div>
-            {allTransactions.length > 0 && 
-                allTransactions.map((transaction) => {
+            {filteredTransactions.length > 0 && 
+                filteredTransactions.map((transaction) => {
                     return <Entry
                         key={transaction._id}
                         transaction={transaction}

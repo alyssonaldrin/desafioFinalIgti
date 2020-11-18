@@ -4,17 +4,7 @@ import Modal from "react-modal";
 Modal.setAppElement("#root");
 
 export default function ModalTransaction({ onSave, onClose, selectedTransaction }) {
-    const [camps, setCamps] = useState(selectedTransaction || {
-        category: "",
-        day: 1,
-        description: "",
-        month: 1,
-        type: "-",
-        value: 0,
-        year: "",
-        yearMonth: "",
-        yearMonthDay: ""
-    })
+    const [camps, setCamps] = useState(selectedTransaction);
 
     useEffect(() => {
         document.addEventListener("keydown", handleKeyDown);
@@ -38,7 +28,7 @@ export default function ModalTransaction({ onSave, onClose, selectedTransaction 
     }
 
     const handleChange = (event) => {
-        const value = event.target.value;
+        const {value, name} = event.target;
         if (event.target.type === "date") {
             const year = value.slice(0, 4);
             const yearMonth = value.slice(0, 7);
@@ -61,7 +51,7 @@ export default function ModalTransaction({ onSave, onClose, selectedTransaction 
         setCamps((prevState) => {
             return {
                 ...prevState,
-                [event.target.name]: value
+                [name]: value
             };
         });
     }
