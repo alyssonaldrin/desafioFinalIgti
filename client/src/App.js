@@ -21,6 +21,21 @@ export default function App() {
       });
 
     useEffect(() => {
+        retrieveTransactions(yearMonth);
+    }, [yearMonth]);
+    
+    const retrieveTransactions = async (yearMonth) => {
+        const transactions = await controller.findAll(yearMonth);
+        const summaryData = await controller.summary(yearMonth);
+        setAllTransactions(transactions);
+        setSummary(summaryData);
+    }
+
+    const refreshList = () => {
+        retrieveTransactions(yearMonth);
+    };
+
+    useEffect(() => {
         const filterLowerCase = filter.toLowerCase();
         const newFilteredTransactions = allTransactions.filter((transaction) => {
             return transaction.description.toLowerCase().includes(filterLowerCase);
@@ -28,28 +43,13 @@ export default function App() {
         setFilteredTransactions(newFilteredTransactions);
     }, [filter, allTransactions])
 
-    useEffect(() => {
-        const getAllTransactions = async () => {
-            const transactions = await controller.findAll(yearMonth);
-            setAllTransactions(transactions);
-            const summaryData = await controller.summary(yearMonth);
-            setSummary(summaryData);
-        };
-        getAllTransactions();
-    }, [yearMonth, allTransactions]);
-
     const handleChange = (event) => {
         setYearMonth(event.target.value);
     }
 
     const handleDelete = async (transaction) => {
-        const deleted = await controller.remove(transaction._id);
-        if (deleted) {
-            const newTransactions = allTransactions.filter(
-                (item) => item._id !== transaction._id
-            );
-            setAllTransactions(newTransactions);
-        }
+        await controller.remove(transaction._id);
+        refreshList();
     }
 
     const handlePersist = async (transaction = {}) => {
@@ -79,6 +79,7 @@ export default function App() {
         } else {
             await controller.create(formData);
         }
+        refreshList();
         setIsModalOn(false);
     }
 
